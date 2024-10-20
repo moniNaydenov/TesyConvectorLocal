@@ -1,0 +1,7 @@
+{
+  "name": "Tesy Convector Local Integration",
+  "content_in_root": false,
+  "domains": ["tesy_convector_local"],
+  "country": "bg",
+  "zip_release": false
+}

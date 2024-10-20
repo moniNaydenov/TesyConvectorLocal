@@ -1,0 +1,14 @@
+{
+  "domain": "tesy_convector_local",
+  "name": "Tesy Convector Integration",
+  "version": "1.0.0",
+  "documentation": "https://github.com/alexanderpp/TesyConvectorLocal",
+  "dependencies": [],
+  "requirements": ["requests"],
+  "codeowners": ["@alexanderpp"],
+  "config_flow": true,
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "icon": "custom_components/tesy_convector_local/icon.png",
+  "logo": "custom_components/tesy_convector_local/icon.png"
+}
