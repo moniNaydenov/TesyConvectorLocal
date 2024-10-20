@@ -7,6 +7,8 @@ from homeassistant.components.climate.const import (
 )
 from homeassistant.const import UnitOfTemperature
 from homeassistant.components.climate import ClimateEntityFeature
+from homeassistant.helpers.event import async_track_time_interval
+from datetime import timedelta
 
 from .tesy_convector import TesyConvector
 
@@ -85,6 +87,13 @@ class TesyConvectorClimate(ClimateEntity):
     def target_temperature(self):
         """Return the current target temperature."""
         return self._target_temp
+
+    async def async_added_to_hass(self):
+        """Run when entity is added to Home Assistant."""
+        # Update the state every 20 seconds
+        self._remove_update_listener = async_track_time_interval(
+            self.hass, self.async_update, timedelta(seconds=10)
+        )
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set the HVAC mode (on/off)."""

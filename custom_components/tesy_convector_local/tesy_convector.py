@@ -13,7 +13,7 @@ class TesyConvector:
 
         async with aiohttp.ClientSession() as session:
             try:
-                async with async_timeout.timeout(20):
+                async with async_timeout.timeout(10):
                     async with session.post(url, json=payload) as response:
                         try:
                             # Try to parse the response as JSON even if the Content-Type is incorrect
