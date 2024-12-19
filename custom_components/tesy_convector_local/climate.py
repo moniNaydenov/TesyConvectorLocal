@@ -16,6 +16,7 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the Tesy Convector climate entity."""
     ip_address = config_entry.data.get("ip_address")
@@ -29,6 +30,7 @@ class TesyConvectorClimate(ClimateEntity):
 
     def __init__(self, convector, temperature_entity=None):
         """Initialize the climate entity."""
+        self._remove_update_listener = None
         self.convector = convector
         self.temperature_entity = temperature_entity
         self._attr_name = "Tesy Convector"
@@ -45,7 +47,7 @@ class TesyConvectorClimate(ClimateEntity):
         self._current_temp = None  # Variable to store current temperature
         self._target_temp = None  # Variable to store target temperature
 
-    async def async_update(self):
+    async def async_update(self, datetime):
         """Fetch new state data for this entity."""
         if self.temperature_entity:
             # Get the temperature from the specified entity
