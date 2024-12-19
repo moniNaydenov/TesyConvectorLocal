@@ -47,7 +47,7 @@ class TesyConvectorClimate(ClimateEntity):
         self._current_temp = None  # Variable to store current temperature
         self._target_temp = None  # Variable to store target temperature
 
-    async def async_update(self, datetime):
+    async def async_update(self, *args):
         """Fetch new state data for this entity."""
         if self.temperature_entity:
             # Get the temperature from the specified entity
