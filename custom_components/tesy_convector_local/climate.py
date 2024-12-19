@@ -1,10 +1,7 @@
 import asyncio
 
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import (
-    HVAC_MODE_OFF,
-    HVAC_MODE_HEAT,
-)
+from homeassistant.components.climate.const import HVACMode
 from homeassistant.const import UnitOfTemperature
 from homeassistant.components.climate import ClimateEntityFeature
 from homeassistant.helpers.event import async_track_time_interval
@@ -39,11 +36,11 @@ class TesyConvectorClimate(ClimateEntity):
         self._attr_supported_features = (
             ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON
         )
-        self._attr_hvac_modes = [HVAC_MODE_HEAT, HVAC_MODE_OFF]
+        self._attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF]
         self._attr_min_temp = 10
         self._attr_max_temp = 30
         self._attr_target_temperature_step = 1
-        self._hvac_mode = HVAC_MODE_OFF  # Default to off initially
+        self._hvac_mode = HVACMode.OFF  # Default to off initially
         self._current_temp = None  # Variable to store current temperature
         self._target_temp = None  # Variable to store target temperature
 
@@ -67,12 +64,12 @@ class TesyConvectorClimate(ClimateEntity):
 
         # Check if 'payload' exists before accessing it
         if 'payload' in status and 'onOff' in status['payload'] and 'status' in status['payload']['onOff']['payload']:
-            self._hvac_mode = HVAC_MODE_HEAT if status['payload']['onOff']['payload']['status'] == 'on' else HVAC_MODE_OFF
+            self._hvac_mode = HVACMode.HEAT if status['payload']['onOff']['payload']['status'] == 'on' else HVACMode.OFF
             self._target_temp = status['payload']['setTemp']['payload']['temp']  # Set target temperature
         else:
             _LOGGER.error("Unexpected response structure from Tesy Convector: %s", status)
             # Optionally set default values in case of an unexpected structure
-            self._hvac_mode = HVAC_MODE_OFF
+            self._hvac_mode = HVACMode.OFF
             self._target_temp = None
 
     @property
@@ -99,9 +96,9 @@ class TesyConvectorClimate(ClimateEntity):
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set the HVAC mode (on/off)."""
-        if hvac_mode == HVAC_MODE_HEAT:
+        if hvac_mode == HVACMode.HEAT:
             await self.convector.turn_on()
-        elif hvac_mode == HVAC_MODE_OFF:
+        elif hvac_mode == HVACMode.OFF:
             await self.convector.turn_off()
 
         # Add a delay after setting the HVAC mode to give the convector time to process
