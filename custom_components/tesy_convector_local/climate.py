@@ -22,6 +22,16 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     convector = TesyConvector(ip_address, model)
     async_add_entities([TesyConvectorClimate(convector, temperature_entity)])
 
+    async def handle_set_opened_window(call):
+        """Handle the service call."""
+        entity_id = call.data.get("entity_id")
+        status = call.data.get("status")
+
+        climate_entity = hass.data[DOMAIN][config_entry.entry_id]
+        await climate_entity.async_set_opened_window(status)
+
+    hass.services.async_register(DOMAIN, "set_opened_window", handle_set_opened_window)
+
 
 class TesyConvectorClimate(ClimateEntity):
     """Representation of a Tesy Convector as a ClimateEntity."""
@@ -101,6 +111,7 @@ class TesyConvectorClimate(ClimateEntity):
         """Set the HVAC mode (on/off)."""
         if hvac_mode == HVACMode.HEAT:
             await self.convector.turn_on()
+            await self.convector.set_mode("heating")  # Set to program mode
         elif hvac_mode == HVACMode.OFF:
             await self.convector.turn_off()
         elif hvac_mode == HVACMode.AUTO:  # Add this condition
@@ -117,3 +128,7 @@ class TesyConvectorClimate(ClimateEntity):
             await self.convector.set_temperature(temp)
             self._target_temp = temp  # Update the internal target temperature
             await asyncio.sleep(0.1)
+
+    async def async_set_opened_window(self, status):
+        """Service call to set the opened window status."""
+        await self.convector.set_opened_window(status)
