@@ -76,8 +76,17 @@ class TesyConvectorClimate(ClimateEntity):
         _LOGGER.debug("Tesy Convector status: %s", status)
 
         # Check if 'payload' exists before accessing it
+        # Check if the heater is on and in "program" mode
         if 'payload' in status and 'onOff' in status['payload'] and 'status' in status['payload']['onOff']['payload']:
-            self._hvac_mode = HVACMode.HEAT if status['payload']['onOff']['payload']['status'] == 'on' else HVACMode.OFF
+            if status['payload']['onOff']['payload']['status'] == 'on':
+                # Check the current mode
+                current_mode = status['payload']['setMode']['payload']['name']  # Assuming the mode is in 'setMode'
+                if current_mode == 'program':
+                    self._hvac_mode = HVACMode.AUTO  # Set to AUTO if in program mode
+                else:
+                    self._hvac_mode = HVACMode.HEAT  # Otherwise, set to HEAT
+            else:
+                self._hvac_mode = HVACMode.OFF
             self._target_temp = status['payload']['setTemp']['payload']['temp']  # Set target temperature
         else:
             _LOGGER.error("Unexpected response structure from Tesy Convector: %s", status)
@@ -110,12 +119,10 @@ class TesyConvectorClimate(ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode):
         """Set the HVAC mode (on/off)."""
         if hvac_mode == HVACMode.HEAT:
-            await self.convector.turn_on()
             await self.convector.set_mode("heating")  # Set to program mode
         elif hvac_mode == HVACMode.OFF:
             await self.convector.turn_off()
         elif hvac_mode == HVACMode.AUTO:  # Add this condition
-            await self.convector.turn_on()
             await self.convector.set_mode("program")  # Set to program mode
 
         # Add a delay after setting the HVAC mode to give the convector time to process
