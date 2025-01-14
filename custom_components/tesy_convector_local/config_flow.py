@@ -7,6 +7,7 @@ from .const import DOMAIN
 # Schema for the user input (IP Address)
 STEP_USER_DATA_SCHEMA = vol.Schema({
     vol.Required("ip_address"): str,
+    vol.Required("model"): str, # Add a model field to the schema
     vol.Optional("temperature_entity"): EntitySelector(
         {"domain": "sensor"}  # Allow the user to select a temperature sensor entity
     )
@@ -25,6 +26,7 @@ class TesyConvectorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             ip_address = user_input["ip_address"]
+            model = user_input["model"]  # Get the model from user input
 
             # Validate the IP address (You can add actual validation logic here)
             valid = await self._test_ip_address(ip_address)

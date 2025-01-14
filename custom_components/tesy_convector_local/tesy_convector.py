@@ -5,8 +5,10 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 class TesyConvector:
-    def __init__(self, ip_address):
+    def __init__(self, ip_address, model):
         self.base_url = f"http://{ip_address}"
+        self.model = model
+        self.ip_address = ip_address  # Add ip_address as an attribute
 
     async def send_command(self, endpoint, payload):
         url = f"{self.base_url}/{endpoint}"

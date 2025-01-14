@@ -18,7 +18,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the Tesy Convector climate entity."""
     ip_address = config_entry.data.get("ip_address")
     temperature_entity = config_entry.data.get("temperature_entity")  # Get temperature entity if provided
-    convector = TesyConvector(ip_address)
+    model = config_entry.data.get("model")  # Get temperature entity if provided
+    convector = TesyConvector(ip_address, model)
     async_add_entities([TesyConvectorClimate(convector, temperature_entity)])
 
 
@@ -36,13 +37,15 @@ class TesyConvectorClimate(ClimateEntity):
         self._attr_supported_features = (
             ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON
         )
-        self._attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF]
+        self._attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF, HVACMode.AUTO]
         self._attr_min_temp = 10
         self._attr_max_temp = 30
         self._attr_target_temperature_step = 1
         self._hvac_mode = HVACMode.OFF  # Default to off initially
         self._current_temp = None  # Variable to store current temperature
         self._target_temp = None  # Variable to store target temperature
+        # Generate unique ID using model and IP address
+        self._attr_unique_id = f"{convector.model}_{convector.ip_address}"
 
     async def async_update(self, *args):
         """Fetch new state data for this entity."""
@@ -100,6 +103,9 @@ class TesyConvectorClimate(ClimateEntity):
             await self.convector.turn_on()
         elif hvac_mode == HVACMode.OFF:
             await self.convector.turn_off()
+        elif hvac_mode == HVACMode.AUTO:  # Add this condition
+            await self.convector.turn_on()
+            await self.convector.set_mode("program")  # Set to program mode
 
         # Add a delay after setting the HVAC mode to give the convector time to process
         await asyncio.sleep(0.1)
